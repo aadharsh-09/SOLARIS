@@ -1,4 +1,3 @@
-
 from fastapi import APIRouter, HTTPException, Query
 
 from app.services.weather_service import (
@@ -16,6 +15,8 @@ from app.services.energy_service import (
     compare_energy
 )
 
+from app.services.savings_service import calculate_savings
+
 
 router = APIRouter()
 
@@ -28,6 +29,8 @@ def solar(
     azimuth: float = Query(ge=-180, le=180),
     capacity_kw: float = Query(gt=0),
     daily_consumption: float = Query(ge=0),
+    grid_tariff: float = Query(ge=0),
+    export_tariff: float = Query(ge=0),
     performance_ratio: float = Query(default=0.8, gt=0, le=1)
 ):
 
@@ -68,7 +71,15 @@ def solar(
             monthly_consumption
         )
 
-        # Step 7: Return results
+        # Step 7: Calculate financial benefits
+        financial_analysis = calculate_savings(
+            monthly_generation,
+            monthly_consumption,
+            grid_tariff,
+            export_tariff
+        )
+
+        # Step 8: Return results
         return {
             "location": {
                 "latitude": processed_weather["latitude"],
@@ -97,7 +108,9 @@ def solar(
                 "estimated_monthly_kwh": monthly_generation
             },
 
-            "energy_comparison": energy_comparison
+            "energy_comparison": energy_comparison,
+
+            "financial_analysis": financial_analysis
         }
 
     except ValueError as error:
