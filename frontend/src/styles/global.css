@@ -1,0 +1,332 @@
+:root {
+  --primary-color: #0f2c5d;
+  --secondary-color: #1a4e8c;
+  --accent-color: #FF9F1C;
+  --light-bg: #f8f9fa;
+  --dark-bg: #1a1a1a;
+  --card-bg: #2d3748;
+  --text-primary: #1a202c;
+  --text-secondary: #4a5568;
+  --success: #10b981;
+  --warning: #f59e0b;
+  --danger: #ef4444;
+  --gray-100: #f3f4f6;
+  --gray-200: #e2e8f0;
+  --gray-300: #cbd5e1;
+  --gray-400: #a0aec0;
+  --gray-500: #718096;
+  --gray-600: #5a677b;
+  --gray-700: #374151;
+  --gray-800: #1f2937;
+  --gray-800-30: rgba(31, 41, 55, 0.3);
+  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+  --rounded-lg: 0.5rem;
+  --radius-sm: 0.25rem;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --card-bg: #1e293b;
+    --text-primary: #e2e8f0;
+    --text-secondary: #94a3b8;
+    --gray-100: #1a202c;
+    --gray-200: #334155;
+    --gray-300: #4b556b;
+    --gray-400: #6b7280;
+    --gray-500: #818cf8;
+    --gray-600: #64748b;
+    --gray-700: #4a5568;
+    --gray-800: #1a202c;
+  }
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  background-color: var(--light-bg);
+  color: var(--text-primary);
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+img {
+  max-width: 100%;
+  height: auto;
+  display: block;
+}
+
+.container {
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 1rem;
+}
+
+.app {
+  min-height: 100vh;
+  background-color: var(--light-bg);
+  color: var(--text-primary);
+}
+
+.header {
+  background-color: var(--primary-color);
+  color: white;
+  padding: 1rem 0;
+  text-align: center;
+  box-shadow: var(--shadow-sm);
+}
+
+.header h1 {
+  font-size: 1.5rem;
+  margin-bottom: 0.5rem;
+  font-weight: 600;
+}
+
+.header .subtitle {
+  font-size: 0.9rem;
+  opacity: 0.9;
+}
+
+.solar-form,
+.household-form {
+  background-color: var(--card-bg);
+  border-radius: var(--rounded-lg);
+  padding: 1.5rem;
+  box-shadow: var(--shadow-sm);
+  margin-bottom: 1.5rem;
+}
+
+.form-row {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 1rem;
+  flex-wrap: wrap;
+}
+
+.form-row label {
+  flex: 1;
+  font-weight: 500;
+  color: var(--text-primary);
+}
+
+.form-row input {
+  flex: 1;
+  padding: 0.5rem;
+  border: 1px solid var(--gray-300);
+  border-radius: var(--radius-sm);
+  background-color: var(--gray-100);
+  color: var(--text-primary);
+  font-size: 0.9rem;
+}
+
+.form-row input:focus {
+  outline: none;
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 2px rgba(15, 44, 93, 0.25);
+}
+
+button.calculate-button {
+  background-color: var(--primary-color);
+  color: white;
+  border: none;
+  padding: 0.75rem 1.5rem;
+  border-radius: var(--rounded-lg);
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.2s;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+button.calculate-button:hover {
+  background-color: var(--secondary-color);
+}
+
+.results-dashboard {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 1.5rem;
+  margin-top: 2rem;
+}
+
+.metric-card {
+  background-color: var(--card-bg);
+  border-radius: var(--rounded-lg);
+  padding: 1.5rem;
+  text-align: center;
+  box-shadow: var(--shadow-sm);
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.metric-card:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+}
+
+.metric-title {
+  font-size: 0.95rem;
+  color: var(--text-secondary);
+  margin-bottom: 0.75rem;
+  font-weight: 500;
+}
+
+.metric-value {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin: 0.5rem 0;
+}
+
+.metric-unit {
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+  margin-top: 0.25rem;
+}
+
+.dashboard-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 1rem;
+  margin-bottom: 2rem;
+}
+
+.dashboard-charts {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 2rem;
+  margin-top: 2rem;
+}
+
+.chart-container {
+  background-color: var(--card-bg);
+  border-radius: var(--rounded-lg);
+  padding: 1.5rem;
+  box-shadow: var(--shadow-sm);
+  min-height: 300px;
+}
+
+.chart-container h3 {
+  font-size: 1.1rem;
+  margin-bottom: 1rem;
+  color: var(--text-primary);
+}
+
+.breakdown-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1.5rem;
+  margin-top: 2rem;
+}
+
+.breakdown-item {
+  background-color: var(--card-bg);
+  border-radius: var(--rounded-lg);
+  padding: 1.25rem;
+  text-align: center;
+  box-shadow: var(--shadow-sm);
+}
+
+.breakdown-item h4 {
+  font-size: 1rem;
+  color: var(--text-primary);
+  margin-bottom: 0.5rem;
+  font-weight: 600;
+}
+
+.breakdown-value {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin: 0.5rem 0;
+}
+
+.financial-breakdown {
+  background-color: var(--card-bg);
+  border-radius: var(--rounded-lg);
+  padding: 2rem;
+  box-shadow: var(--shadow-md);
+  margin-top: 2rem;
+}
+
+.financial-breakdown h3 {
+  font-size: 1.5rem;
+  margin-bottom: 1.5rem;
+  color: var(--text-primary);
+  text-align: center;
+}
+
+.breakdown-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 1.5rem;
+}
+
+.breakdown-item {
+  background-color: var(--card-bg);
+  border-radius: var(--rounded-lg);
+  padding: 1.5rem;
+  text-align: center;
+  box-shadow: var(--shadow-sm);
+}
+
+.breakdown-item h4 {
+  font-size: 1.1rem;
+  color: var(--text-primary);
+  margin-bottom: 0.75rem;
+  font-weight: 600;
+}
+
+.breakdown-value {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin: 0.5rem 0;
+}
+
+@media (min-width: 768px) {
+  .app {
+    padding: 2rem;
+  }
+
+  .header {
+    padding: 2rem 0;
+  }
+
+  .results-dashboard {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .dashboard-charts {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 480px) {
+  .header h1 {
+    font-size: 1.25rem;
+  }
+
+  .form-row {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  button.calculate-button {
+    width: 100%;
+  }
+
+  .dashboard-grid,
+  .dashboard-charts {
+    grid-template-columns: 1fr;
+  }
+}
