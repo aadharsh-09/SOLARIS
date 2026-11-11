@@ -19,10 +19,10 @@ const GenerationChart = ({ data }) => {
       <div style={{ width: '100%', height: 260 }}>
         <ResponsiveContainer>
           <LineChart data={chartData}>
-            <CartesianGrid strokeDasharray="3 3" stroke="#e0e0e0" />
-            <XAxis dataKey="hour" />
-            <YAxis unit=" kWh" width={70} />
-            <Tooltip />
+            <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.15)" />
+            <XAxis dataKey="hour" stroke="#ffffff" tick={{ fill: '#ffffff' }} />
+            <YAxis unit=" kWh" width={70} stroke="#ffffff" tick={{ fill: '#ffffff' }} />
+            <Tooltip contentStyle={{ background: '#0a1f44', border: '1px solid #FF9F1C', color: '#fff' }} labelStyle={{ color: '#fff' }} />
             <Line type="monotone" dataKey="kwh" name="Solar Generation" stroke="#FF9F1C" strokeWidth={2} />
           </LineChart>
         </ResponsiveContainer>

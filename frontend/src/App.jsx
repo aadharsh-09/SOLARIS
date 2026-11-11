@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import LocationPicker from './components/LocationPicker';
+import { SearchBox, MapPanel } from './components/LocationPicker';
 import SolarSystemForm from './components/SolarSystemForm';
 import ResultsDashboard from './components/ResultsDashboard';
 
@@ -20,25 +20,29 @@ function App() {
   return (
     <div className="app">
       <header className="header">
-        <h1>SOLARIS - Solar Analysis Dashboard</h1>
+        <h1>
+          <span className="accent">SOLARIS</span> - Solar Analysis Dashboard
+        </h1>
       </header>
 
       <main className="container">
-        <LocationPicker
-          location={selectedLocation}
-          onLocationChange={setSelectedLocation}
-        />
+        <SearchBox onPick={setSelectedLocation} />
 
-        {selectedLocation ? (
-          <>
-            <SolarSystemForm data={formData} onChange={setFormData} />
+        <section className="workspace">
+          <MapPanel location={selectedLocation} onLocationChange={setSelectedLocation} />
+          <SolarSystemForm data={formData} onChange={setFormData} />
+        </section>
+
+        <section className="live-data">
+          <h2 className="section-title">Live Data</h2>
+          {selectedLocation ? (
             <ResultsDashboard location={selectedLocation} formData={formData} />
-          </>
-        ) : (
-          <div className="placeholder">
-            <p>Search for a place or click the map to choose a location</p>
-          </div>
-        )}
+          ) : (
+            <div className="placeholder">
+              <p>Search for a place or click the map to choose a location</p>
+            </div>
+          )}
+        </section>
       </main>
     </div>
   );
