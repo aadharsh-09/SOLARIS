@@ -1,4 +1,13 @@
+from typing import Literal
+
 from fastapi import APIRouter, HTTPException, Query
+
+from app.config import (
+    PERFORMANCE_RATIO,
+    GRID_TARIFF,
+    EXPORT_TARIFF,
+    FACING_TO_AZIMUTH
+)
 
 from app.services.weather_service import (
     get_weather,
@@ -26,15 +35,20 @@ def solar(
     latitude: float = Query(ge=-90, le=90),
     longitude: float = Query(ge=-180, le=180),
     tilt: float = Query(ge=0, le=90),
-    azimuth: float = Query(ge=-180, le=180),
+    facing: Literal["N", "NE", "E", "SE", "S", "SW", "W", "NW"] = "S",
     capacity_kw: float = Query(gt=0),
-    daily_consumption: float = Query(ge=0),
-    grid_tariff: float = Query(ge=0),
-    export_tariff: float = Query(ge=0),
-    performance_ratio: float = Query(default=0.8, gt=0, le=1)
+    daily_consumption: float = Query(ge=0)
 ):
 
     try:
+        # Fixed values (not user inputs any more)
+        performance_ratio = PERFORMANCE_RATIO
+        grid_tariff = GRID_TARIFF
+        export_tariff = EXPORT_TARIFF
+
+        # Panel facing direction (N, NE, ...) -> azimuth angle for the weather API
+        azimuth = FACING_TO_AZIMUTH[facing]
+
         # Step 1: Fetch weather data
         weather_data = get_weather(
             latitude,
@@ -90,12 +104,17 @@ def solar(
             "solar_system": {
                 "capacity_kw": capacity_kw,
                 "tilt": tilt,
-                "azimuth": azimuth,
+                "facing": facing,
                 "performance_ratio": performance_ratio
             },
 
             "solar_irradiation": {
                 "daily_kwh_m2": daily_irradiation
+            },
+
+            "weather": {
+                "current": processed_weather["current"],
+                "hourly": processed_weather["hourly"]
             },
 
             "household": {

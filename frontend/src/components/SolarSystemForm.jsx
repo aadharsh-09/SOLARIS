@@ -1,5 +1,19 @@
 import { useState } from 'react';
 
+// The user picks a direction name only; the backend turns it into an angle.
+const FACING_OPTIONS = [
+  { value: 'N', label: 'North' },
+  { value: 'NE', label: 'North-East' },
+  { value: 'E', label: 'East' },
+  { value: 'SE', label: 'South-East' },
+  { value: 'S', label: 'South' },
+  { value: 'SW', label: 'South-West' },
+  { value: 'W', label: 'West' },
+  { value: 'NW', label: 'North-West' },
+];
+
+const NUMERIC_FIELDS = ['capacity_kw', 'tilt', 'daily_consumption'];
+
 const SolarSystemForm = ({ data, onChange }) => {
   const [formData, setFormData] = useState(data);
 
@@ -14,9 +28,12 @@ const SolarSystemForm = ({ data, onChange }) => {
     setError(null);
     try {
       const numeric = Object.fromEntries(
-        Object.entries(formData).map(([k, v]) => [k, Number(v)])
+        NUMERIC_FIELDS.map((k) => [k, Number(formData[k])])
       );
-      if (Object.values(numeric).some((v) => Number.isNaN(v))) {
+      if (
+        Object.values(numeric).some((v) => Number.isNaN(v)) ||
+        NUMERIC_FIELDS.some((k) => String(formData[k]).trim() === '')
+      ) {
         setError('Please fill in every field with a valid number');
         return;
       }
@@ -31,13 +48,8 @@ const SolarSystemForm = ({ data, onChange }) => {
         return;
       }
 
-      if (numeric.azimuth < -180 || numeric.azimuth > 180) {
-        setError('Azimuth must be between -180 and 180 degrees');
-        return;
-      }
-
-      if (numeric.performance_ratio <= 0 || numeric.performance_ratio > 1) {
-        setError('Performance ratio must be between 0 and 1');
+      if (!FACING_OPTIONS.some((o) => o.value === formData.facing)) {
+        setError('Please choose the direction the panels face');
         return;
       }
 
@@ -46,17 +58,7 @@ const SolarSystemForm = ({ data, onChange }) => {
         return;
       }
 
-      if (numeric.grid_tariff < 0) {
-        setError('Grid tariff must be greater than or equal to 0');
-        return;
-      }
-
-      if (numeric.export_tariff < 0) {
-        setError('Export tariff must be greater than or equal to 0');
-        return;
-      }
-
-      onChange(numeric);
+      onChange({ ...numeric, facing: formData.facing });
     } catch (err) {
       setError('Failed to validate form data');
       console.error('Form validation error:', err);
@@ -89,62 +91,29 @@ const SolarSystemForm = ({ data, onChange }) => {
             max="90"
           />
         </label>
-        <label>
-          Panel Azimuth (degrees):
-          <input
-            type="number"
-            name="azimuth"
-            value={formData.azimuth}
-            onChange={handleChange}
-            min="-180"
-            max="180"
-          />
-        </label>
       </div>
 
       <div className="form-row">
         <label>
-          Performance Ratio:
-          <input
-            type="number"
-            name="performance_ratio"
-            value={formData.performance_ratio}
+          Panel Facing Direction:
+          <select
+            name="facing"
+            value={formData.facing}
             onChange={handleChange}
-            step="0.01"
-            min="0"
-            max="1"
-          />
-          <small>Typical range: 0.7-0.9</small>
+          >
+            {FACING_OPTIONS.map((option) => (
+              <option key={option.value} value={option.value}>
+                {option.label}
+              </option>
+            ))}
+          </select>
         </label>
-      </div>
-
-      <div className="form-row">
         <label>
           Daily Household Consumption (kWh):
           <input
             type="number"
             name="daily_consumption"
             value={formData.daily_consumption}
-            onChange={handleChange}
-            min="0"
-          />
-        </label>
-        <label>
-          Grid Tariff (₹/kWh):
-          <input
-            type="number"
-            name="grid_tariff"
-            value={formData.grid_tariff}
-            onChange={handleChange}
-            min="0"
-          />
-        </label>
-        <label>
-          Export Tariff (₹/kWh):
-          <input
-            type="number"
-            name="export_tariff"
-            value={formData.export_tariff}
             onChange={handleChange}
             min="0"
           />

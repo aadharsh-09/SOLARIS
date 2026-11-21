@@ -7,13 +7,18 @@ from urllib.request import Request, urlopen
 
 BASE_URL = "https://api.open-meteo.com/v1/forecast"
 
+CURRENT_FIELDS = (
+    "temperature_2m,apparent_temperature,relative_humidity_2m,"
+    "is_day,precipitation,weather_code,cloud_cover,wind_speed_10m"
+)
+
 
 def get_weather(latitude, longitude, tilt, azimuth):
 
     params = {
         "latitude": latitude,
         "longitude": longitude,
-        "current": "temperature_2m,is_day",
+        "current": CURRENT_FIELDS,
         "hourly": "global_tilted_irradiance,temperature_2m",
         "tilt": tilt,
         "azimuth": azimuth,
@@ -65,10 +70,25 @@ def process_weather_data(data):
         if energy is not None:
             daily_energy += energy
 
+    current = data.get("current") or {}
+
+    current_weather = {
+        "time": current.get("time"),
+        "temperature": current.get("temperature_2m"),
+        "feels_like": current.get("apparent_temperature"),
+        "humidity": current.get("relative_humidity_2m"),
+        "cloud_cover": current.get("cloud_cover"),
+        "wind_speed": current.get("wind_speed_10m"),
+        "precipitation": current.get("precipitation"),
+        "weather_code": current.get("weather_code"),
+        "is_day": bool(current.get("is_day")),
+    }
+
     return {
         "latitude": data["latitude"],
         "longitude": data["longitude"],
         "timezone": data["timezone"],
+        "current": current_weather,
         "hourly": processed_data,
         "daily_energy_kwh_m2": round(daily_energy, 3)
     }

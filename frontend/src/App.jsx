@@ -6,11 +6,8 @@ import ResultsDashboard from './components/ResultsDashboard';
 const DEFAULT_FORM = {
   capacity_kw: 3,
   tilt: 20,
-  azimuth: 0,
-  performance_ratio: 0.8,
+  facing: 'S',
   daily_consumption: 12,
-  grid_tariff: 8,
-  export_tariff: 3,
 };
 
 function App() {
