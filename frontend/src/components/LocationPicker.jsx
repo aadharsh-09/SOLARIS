@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { MapContainer, TileLayer, Marker, useMapEvents, useMap } from 'react-leaflet';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
@@ -16,6 +16,12 @@ L.Icon.Default.mergeOptions({
 
 const DEFAULT_CENTER = [13.0, 80.2]; // Chennai area
 
+// Rough bounding box around India: the map is locked to it and clicks outside are ignored
+const INDIA_BOUNDS = [[6.0, 68.0], [37.5, 97.5]];
+const isInIndiaBounds = (lat, lng) =>
+  lat >= INDIA_BOUNDS[0][0] && lat <= INDIA_BOUNDS[1][0] &&
+  lng >= INDIA_BOUNDS[0][1] && lng <= INDIA_BOUNDS[1][1];
+
 // Leaflet repeats the world horizontally, so clicking a repeated copy of the map
 // gives a longitude like 260 or -200. The backend only accepts -180..180, so
 // always wrap longitude (and clamp latitude) before it leaves the map.
@@ -28,10 +34,43 @@ export function normalizeLocation(latitude, longitude) {
   };
 }
 
-function ClickHandler({ onPick }) {
+// Asks Nominatim what is at the clicked point. Ocean or other countries are rejected.
+// Returns true (India), false (not India / sea) or null (lookup failed).
+async function isIndianLand(lat, lng) {
+  try {
+    const qs = new URLSearchParams({
+      lat: String(lat), lon: String(lng), format: 'json', zoom: '8', addressdetails: '1',
+    });
+    const res = await fetch(`https://nominatim.openstreetmap.org/reverse?${qs}`);
+    if (!res.ok) return null;
+    const json = await res.json();
+    return json?.address?.country_code === 'in';
+  } catch {
+    return null;
+  }
+}
+
+function ClickHandler({ onPick, onStatus }) {
+  const latest = useRef(0);
   useMapEvents({
-    click(e) {
-      onPick(normalizeLocation(e.latlng.lat, e.latlng.lng));
+    async click(e) {
+      const { lat, lng } = e.latlng;
+      if (!isInIndiaBounds(lat, lng)) {
+        onStatus('Please select a location on land in India');
+        return;
+      }
+      const id = ++latest.current;
+      onStatus('Checking location...');
+      const ok = await isIndianLand(lat, lng);
+      if (id !== latest.current) return; // a newer click replaced this one
+      if (ok === null) {
+        onStatus('Could not verify that location, please try again');
+      } else if (!ok) {
+        onStatus('Please select a location on land in India');
+      } else {
+        onStatus(null);
+        onPick(normalizeLocation(lat, lng));
+      }
     },
   });
   return null;
@@ -56,7 +95,7 @@ export const SearchBox = ({ onPick }) => {
     if (!query.trim()) return;
     try {
       setError(null);
-      const qs = new URLSearchParams({ q: query, format: 'json', limit: '5' });
+      const qs = new URLSearchParams({ q: query, format: 'json', limit: '5', countrycodes: 'in' });
       const res = await fetch(`https://nominatim.openstreetmap.org/search?${qs}`);
       if (!res.ok) throw new Error(String(res.status));
       const json = await res.json();
@@ -111,24 +150,27 @@ export const SearchBox = ({ onPick }) => {
 
 export const MapPanel = ({ location, onLocationChange }) => {
   const position = location ? [location.latitude, location.longitude] : null;
+  const [status, setStatus] = useState(null);
 
   return (
     <div className="map-panel">
       <MapContainer
         center={position || DEFAULT_CENTER}
         zoom={5}
-        minZoom={2}
-        worldCopyJump
+        minZoom={4}
+        maxBounds={INDIA_BOUNDS}
+        maxBoundsViscosity={1.0}
         style={{ height: '100%', width: '100%' }}
       >
         <TileLayer
           attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
         />
-        <ClickHandler onPick={onLocationChange} />
+        <ClickHandler onPick={onLocationChange} onStatus={setStatus} />
         <FlyTo location={location} />
         {position && <Marker position={position} />}
       </MapContainer>
+      {status && <div className="map-status" role="status">{status}</div>}
     </div>
   );
 };

@@ -302,6 +302,27 @@ button.calculate-button:active {
   color: var(--accent);
 }
 
+.map-panel {
+  position: relative;
+}
+
+.map-status {
+  position: absolute;
+  left: 50%;
+  bottom: var(--space-4);
+  transform: translateX(-50%);
+  z-index: 1000;
+  max-width: calc(100% - var(--space-8));
+  padding: var(--space-2) var(--space-4);
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  color: var(--text);
+  font-size: var(--text-sm);
+  text-align: center;
+  pointer-events: none;
+}
+
 /* ---------- Form ---------- */
 .form-row {
   display: grid;
