@@ -75,11 +75,6 @@ const FinancialBreakdown = ({ data }) => {
           result={kwh(fin.grid_energy_needed_kwh)}
         />
         <Row
-          label="Grid bill"
-          formula={`${kwh(fin.grid_energy_needed_kwh)} × ₹${gridTariff}/kWh`}
-          result={formatCurrency(fin.grid_cost_with_solar_inr)}
-        />
-        <Row
           label="Exported to grid"
           formula={hasSurplus ? `${kwh(monthlyGen)} − ${kwh(monthlyUsed)}` : 'No surplus to export'}
           result={kwh(fin.surplus_exported_kwh)}
@@ -92,7 +87,7 @@ const FinancialBreakdown = ({ data }) => {
         <Row
           tone={net < 0 ? 'success' : undefined}
           label="Net bill with solar"
-          formula={`${formatCurrency(fin.grid_cost_with_solar_inr)} − ${formatCurrency(fin.export_credit_inr)}`}
+          formula={`${kwh(fin.grid_energy_needed_kwh)} × ₹${gridTariff}/kWh − ${formatCurrency(fin.export_credit_inr)}`}
           result={net < 0 ? `${formatCurrency(-net)} credit` : formatCurrency(net)}
         />
       </div>
