@@ -56,7 +56,7 @@ function ClickHandler({ onPick, onStatus }) {
     async click(e) {
       const { lat, lng } = e.latlng;
       if (!isInIndiaBounds(lat, lng)) {
-        onStatus('Please select a location on land in India');
+        onStatus('Please select a location in India');
         return;
       }
       const id = ++latest.current;
@@ -66,7 +66,7 @@ function ClickHandler({ onPick, onStatus }) {
       if (ok === null) {
         onStatus('Could not verify that location, please try again');
       } else if (!ok) {
-        onStatus('Please select a location on land in India');
+        onStatus('Please select a location in India');
       } else {
         onStatus(null);
         onPick(normalizeLocation(lat, lng));
