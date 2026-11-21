@@ -113,7 +113,7 @@ const SolarSystemForm = ({ data, onChange, hasLocation }) => {
           </select>
         </label>
         <label>
-          Daily Household Consumption (kWh):
+          Daily Energy Consumption (kWh):
           <input
             type="number"
             name="daily_consumption"
