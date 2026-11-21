@@ -1,4 +1,6 @@
 import { formatCurrency } from '../utils/formatters';
+import Card from './ui/Card';
+import { CoinIcon } from './ui/Icons';
 
 const kwh = (value) => `${Number(value).toFixed(2)} kWh`;
 
@@ -6,8 +8,8 @@ const kwh = (value) => `${Number(value).toFixed(2)} kWh`;
 const inFormula = (value) =>
   value < 0 ? `(${formatCurrency(value)})` : formatCurrency(value);
 
-const Row = ({ label, formula, result, highlight }) => (
-  <div className={`calc-row${highlight ? ' calc-row-total' : ''}`}>
+const Row = ({ label, formula, result, highlight, tone }) => (
+  <div className={`calc-row${highlight ? ' calc-row-total' : ''}${tone ? ` calc-row-${tone}` : ''}`}>
     <span className="calc-label">{label}</span>
     <span className="calc-formula">{formula}</span>
     <strong className="calc-result">{result}</strong>
@@ -32,8 +34,7 @@ const FinancialBreakdown = ({ data }) => {
   const net = fin.net_bill_with_solar_inr;
 
   return (
-    <div className="financial-breakdown">
-      <h3>Financial Analysis</h3>
+    <Card title="Financial Analysis" icon={<CoinIcon />} className="financial-breakdown">
 
       <div className="calc-section">
         <h4>1. Monthly energy (30 days)</h4>
@@ -48,6 +49,7 @@ const FinancialBreakdown = ({ data }) => {
           result={kwh(monthlyUsed)}
         />
         <Row
+          tone={diff > 0 ? 'success' : diff < 0 ? 'warn' : undefined}
           label="Difference"
           formula={`${kwh(monthlyGen)} − ${kwh(monthlyUsed)}`}
           result={`${diff > 0 ? '+' : ''}${diff.toFixed(2)} kWh ${diff > 0 ? '(surplus)' : diff < 0 ? '(deficit)' : ''}`}
@@ -88,6 +90,7 @@ const FinancialBreakdown = ({ data }) => {
           result={formatCurrency(fin.export_credit_inr)}
         />
         <Row
+          tone={net < 0 ? 'success' : undefined}
           label="Net bill with solar"
           formula={`${formatCurrency(fin.grid_cost_with_solar_inr)} − ${formatCurrency(fin.export_credit_inr)}`}
           result={net < 0 ? `${formatCurrency(-net)} credit` : formatCurrency(net)}
@@ -98,12 +101,13 @@ const FinancialBreakdown = ({ data }) => {
         <h4>4. Monthly saving</h4>
         <Row
           highlight
+          tone="success"
           label="You save"
           formula={`${formatCurrency(fin.grid_cost_without_solar_inr)} − ${inFormula(net)}`}
           result={formatCurrency(fin.total_monthly_benefit_inr)}
         />
       </div>
-    </div>
+    </Card>
   );
 };
 

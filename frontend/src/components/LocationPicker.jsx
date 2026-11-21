@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { MapContainer, TileLayer, Marker, useMapEvents, useMap } from 'react-leaflet';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
+import { SearchIcon } from './ui/Icons';
 import markerIcon2x from 'leaflet/dist/images/marker-icon-2x.png';
 import markerIcon from 'leaflet/dist/images/marker-icon.png';
 import markerShadow from 'leaflet/dist/images/marker-shadow.png';
@@ -70,15 +71,19 @@ export const SearchBox = ({ onPick }) => {
   return (
     <div className="search-bar">
       <div className="search-row">
-        <input
-          type="text"
-          value={query}
-          onChange={(e) => setQuery(e.target.value)}
-          onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
-          placeholder="Search for a location..."
-          className="location-search"
-        />
-        <button type="button" onClick={handleSearch} className="calculate-button">
+        <div className="search-input-wrap">
+          <SearchIcon size={18} />
+          <input
+            type="text"
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
+            placeholder="Search for a location..."
+            className="location-search"
+            aria-label="Search for a location"
+          />
+        </div>
+        <button type="button" onClick={handleSearch} className="btn btn-primary">
           Search
         </button>
       </div>

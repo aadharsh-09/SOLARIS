@@ -1,4 +1,17 @@
 import { useState } from 'react';
+import Card from './ui/Card';
+import { AngleIcon, ArrowIcon, BoltIcon, CompassIcon, HomeIcon, PanelIcon } from './ui/Icons';
+
+// Label + icon + optional unit chip wrapped around an existing control
+const Field = ({ label, icon, unit, children }) => (
+  <label className="field">
+    <span className="field-label">{icon}{label}</span>
+    <span className="control">
+      {children}
+      {unit && <span className="control-unit">{unit}</span>}
+    </span>
+  </label>
+);
 
 // The user picks a direction name only; the backend turns it into an angle.
 const FACING_OPTIONS = [
@@ -70,11 +83,9 @@ const SolarSystemForm = ({ data, onChange, hasLocation }) => {
   };
 
   return (
-    <div className="solar-form">
-      <h2>Solar System Configuration</h2>
+    <Card title="Solar System Configuration" icon={<PanelIcon />} className="solar-form">
       <div className="form-row">
-        <label>
-          Installed Capacity (kW):
+        <Field label="Installed capacity" icon={<BoltIcon size={15} />} unit="kW">
           <input
             type="number"
             name="capacity_kw"
@@ -83,9 +94,8 @@ const SolarSystemForm = ({ data, onChange, hasLocation }) => {
             min="0"
             step="0.1"
           />
-        </label>
-        <label>
-          Panel Tilt (degrees):
+        </Field>
+        <Field label="Panel tilt" icon={<AngleIcon size={15} />} unit="deg">
           <input
             type="number"
             name="tilt"
@@ -94,12 +104,11 @@ const SolarSystemForm = ({ data, onChange, hasLocation }) => {
             min="0"
             max="90"
           />
-        </label>
+        </Field>
       </div>
 
       <div className="form-row">
-        <label>
-          Panel Facing Direction:
+        <Field label="Panel facing direction" icon={<CompassIcon size={15} />}>
           <select
             name="facing"
             value={formData.facing}
@@ -111,9 +120,8 @@ const SolarSystemForm = ({ data, onChange, hasLocation }) => {
               </option>
             ))}
           </select>
-        </label>
-        <label>
-          Daily Energy Consumption (kWh):
+        </Field>
+        <Field label="Daily energy consumption" icon={<HomeIcon size={15} />} unit="kWh">
           <input
             type="number"
             name="daily_consumption"
@@ -121,18 +129,19 @@ const SolarSystemForm = ({ data, onChange, hasLocation }) => {
             onChange={handleChange}
             min="0"
           />
-        </label>
+        </Field>
       </div>
 
-      {error && <div className="error-message">{error}</div>}
+      {error && <div className="error-message" role="alert">{error}</div>}
       <button
         type="button"
         onClick={handleSubmit}
-        className="calculate-button"
+        className="btn btn-primary btn-block"
       >
         Calculate Analysis
+        <ArrowIcon size={16} />
       </button>
-    </div>
+    </Card>
   );
 };
 

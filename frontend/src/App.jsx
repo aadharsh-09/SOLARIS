@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { SearchBox, MapPanel } from './components/LocationPicker';
 import SolarSystemForm from './components/SolarSystemForm';
 import ResultsDashboard from './components/ResultsDashboard';
+import { LogoMark } from './components/ui/Icons';
 
 const DEFAULT_FORM = {
   capacity_kw: 3,
@@ -25,12 +26,24 @@ function App() {
   return (
     <div className="app">
       <header className="header">
-        <h1>
-          <span className="accent">SOLARIS</span> - Solar Analysis Dashboard
-        </h1>
+        <div className="header-inner">
+          <div className="brand">
+            <LogoMark />
+            <span className="brand-name">SOLARIS</span>
+            <span className="brand-sub">Solar Analysis Dashboard</span>
+          </div>
+        </div>
       </header>
 
       <main className="container">
+        <section className="intro">
+          <h1 className="intro-title">Solar energy, intelligently analysed.</h1>
+          <p className="intro-text">
+            Understand your solar generation, energy usage and monthly savings through
+            location-based simulation.
+          </p>
+        </section>
+
         <SearchBox onPick={setSelectedLocation} />
 
         <section className="workspace">

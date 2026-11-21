@@ -1,6 +1,9 @@
 import {
-  ResponsiveContainer, LineChart, Line, CartesianGrid, XAxis, YAxis, Tooltip,
+  ResponsiveContainer, AreaChart, Area, CartesianGrid, XAxis, YAxis, Tooltip,
 } from 'recharts';
+import Card from './ui/Card';
+import { ChartIcon } from './ui/Icons';
+import { CHART_COLORS, axisProps, gridProps, tooltipProps } from './chartTheme';
 
 // Illustrative daily curve scaled to the API's daily total (the API only returns totals)
 const HOURS = [6, 8, 10, 12, 14, 16, 18];
@@ -14,20 +17,33 @@ const GenerationChart = ({ data }) => {
   }));
 
   return (
-    <div className="chart-container">
-      <h3>Estimated Daily Generation Profile</h3>
-      <div style={{ width: '100%', height: 260 }}>
+    <Card title="Estimated Daily Generation Profile" icon={<ChartIcon />} className="chart-container">
+      <div className="chart-area chart-area-lg">
         <ResponsiveContainer>
-          <LineChart data={chartData}>
-            <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.15)" />
-            <XAxis dataKey="hour" stroke="#ffffff" tick={{ fill: '#ffffff' }} />
-            <YAxis unit=" kWh" width={70} stroke="#ffffff" tick={{ fill: '#ffffff' }} />
-            <Tooltip contentStyle={{ background: '#0a1f44', border: '1px solid #FF9F1C', color: '#fff' }} labelStyle={{ color: '#fff' }} />
-            <Line type="monotone" dataKey="kwh" name="Solar Generation" stroke="#FF9F1C" strokeWidth={2} />
-          </LineChart>
+          <AreaChart data={chartData} margin={{ top: 8, right: 12, left: 0, bottom: 0 }}>
+            <defs>
+              <linearGradient id="genFill" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stopColor={CHART_COLORS.teal} stopOpacity={0.28} />
+                <stop offset="100%" stopColor={CHART_COLORS.teal} stopOpacity={0} />
+              </linearGradient>
+            </defs>
+            <CartesianGrid {...gridProps} />
+            <XAxis dataKey="hour" {...axisProps} />
+            <YAxis unit=" kWh" width={70} {...axisProps} axisLine={false} />
+            <Tooltip {...tooltipProps} />
+            <Area
+              type="monotone"
+              dataKey="kwh"
+              name="Solar Generation"
+              stroke={CHART_COLORS.teal}
+              strokeWidth={2.5}
+              fill="url(#genFill)"
+              activeDot={{ r: 5, fill: CHART_COLORS.teal, stroke: CHART_COLORS.surface, strokeWidth: 2 }}
+            />
+          </AreaChart>
         </ResponsiveContainer>
       </div>
-    </div>
+    </Card>
   );
 };
 

@@ -2,6 +2,8 @@ import {
   ResponsiveContainer, LineChart, Line, AreaChart, Area,
   CartesianGrid, XAxis, YAxis, Tooltip, ReferenceLine,
 } from 'recharts';
+import { CloudIcon, DropIcon, ThermoIcon } from './ui/Icons';
+import { CHART_COLORS, axisProps, gridProps, tooltipProps } from './chartTheme';
 
 // WMO weather codes (as returned by Open-Meteo) -> short text + icon
 const describeWeather = (code, isDay) => {
@@ -36,7 +38,6 @@ const WeatherPanel = ({ weather }) => {
     irradiance: h.irradiance,
   }));
 
-  const tooltipStyle = { background: '#0a1f44', border: '1px solid #FF9F1C', color: '#fff' };
   const nowLabel = hourLabel(current.time);
 
   return (
@@ -53,9 +54,9 @@ const WeatherPanel = ({ weather }) => {
           </div>
 
           <ul className="weather-stats">
-            <li><span>Feels like</span><strong>{show(current.feels_like, '°C')}</strong></li>
-            <li><span>Cloud cover</span><strong>{show(current.cloud_cover, '%')}</strong></li>
-            <li><span>Rain</span><strong>{show(current.precipitation, ' mm')}</strong></li>
+            <li><span><ThermoIcon size={15} />Feels like</span><strong>{show(current.feels_like, '°C')}</strong></li>
+            <li><span><CloudIcon size={15} />Cloud cover</span><strong>{show(current.cloud_cover, '%')}</strong></li>
+            <li><span><DropIcon size={15} />Rain</span><strong>{show(current.precipitation, ' mm')}</strong></li>
           </ul>
         </div>
       </div>
@@ -63,15 +64,15 @@ const WeatherPanel = ({ weather }) => {
       <div className="weather-charts">
         <div className="weather-chart">
           <h3>Today&apos;s Hourly Temperature</h3>
-          <div style={{ width: '100%', height: 230 }}>
+          <div className="chart-area">
             <ResponsiveContainer>
               <LineChart data={chartData}>
-                <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.15)" />
-                <XAxis dataKey="hour" stroke="#ffffff" tick={{ fill: '#ffffff', fontSize: 12 }} interval={2} />
-                <YAxis unit="°C" width={55} stroke="#ffffff" tick={{ fill: '#ffffff' }} domain={['dataMin - 2', 'dataMax + 2']} />
-                <Tooltip contentStyle={tooltipStyle} labelStyle={{ color: '#fff' }} />
-                <ReferenceLine x={nowLabel} stroke="#ffffff" strokeDasharray="4 4" label={{ value: 'Now', fill: '#ffffff', position: 'top' }} />
-                <Line type="monotone" dataKey="temperature" name="Temperature (°C)" stroke="#FF9F1C" strokeWidth={2} dot={false} />
+                <CartesianGrid {...gridProps} />
+                <XAxis dataKey="hour" {...axisProps} interval={2} />
+                <YAxis unit="°C" width={55} {...axisProps} axisLine={false} domain={['dataMin - 2', 'dataMax + 2']} />
+                <Tooltip {...tooltipProps} />
+                <ReferenceLine x={nowLabel} stroke={CHART_COLORS.axis} strokeDasharray="4 4" label={{ value: 'Now', fill: CHART_COLORS.axis, position: 'top', fontSize: 12 }} />
+                <Line type="monotone" dataKey="temperature" name="Temperature (°C)" stroke={CHART_COLORS.teal} strokeWidth={2.5} dot={false} />
               </LineChart>
             </ResponsiveContainer>
           </div>
@@ -79,15 +80,15 @@ const WeatherPanel = ({ weather }) => {
 
         <div className="weather-chart">
           <h3>Solar Irradiance Throughout the Day</h3>
-          <div style={{ width: '100%', height: 230 }}>
+          <div className="chart-area">
             <ResponsiveContainer>
               <AreaChart data={chartData}>
-                <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.15)" />
-                <XAxis dataKey="hour" stroke="#ffffff" tick={{ fill: '#ffffff', fontSize: 12 }} interval={2} />
-                <YAxis unit=" W/m²" width={80} stroke="#ffffff" tick={{ fill: '#ffffff' }} domain={[0, 'auto']} />
-                <Tooltip contentStyle={tooltipStyle} labelStyle={{ color: '#fff' }} />
-                <ReferenceLine x={nowLabel} stroke="#ffffff" strokeDasharray="4 4" label={{ value: 'Now', fill: '#ffffff', position: 'top' }} />
-                <Area type="monotone" dataKey="irradiance" name="Irradiance (W/m²)" stroke="#FFD166" strokeWidth={2} fill="#FFD166" fillOpacity={0.35} />
+                <CartesianGrid {...gridProps} />
+                <XAxis dataKey="hour" {...axisProps} interval={2} />
+                <YAxis unit=" W/m²" width={80} {...axisProps} axisLine={false} domain={[0, 'auto']} />
+                <Tooltip {...tooltipProps} />
+                <ReferenceLine x={nowLabel} stroke={CHART_COLORS.axis} strokeDasharray="4 4" label={{ value: 'Now', fill: CHART_COLORS.axis, position: 'top', fontSize: 12 }} />
+                <Area type="monotone" dataKey="irradiance" name="Irradiance (W/m²)" stroke={CHART_COLORS.solar} strokeWidth={2.5} fill={CHART_COLORS.solar} fillOpacity={0.18} />
               </AreaChart>
             </ResponsiveContainer>
           </div>

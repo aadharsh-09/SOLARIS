@@ -6,6 +6,7 @@ import FinancialBreakdown from './FinancialBreakdown';
 import WeatherPanel from './WeatherPanel';
 import LoadingState from './LoadingState';
 import ErrorMessage from './ErrorMessage';
+import { BoltIcon, HomeIcon, SunIcon } from './ui/Icons';
 
 const ResultsDashboard = ({ location, formData }) => {
   const { data, loading, error, fetchSolarData } = useSolarData();
@@ -35,9 +36,9 @@ const ResultsDashboard = ({ location, formData }) => {
   return (
     <div className="results-dashboard">
       <div className="dashboard-grid">
-        <MetricCard title="Daily Generation" value={data.generation?.daily_kwh} unit="kWh/day" />
-        <MetricCard title="Daily Consumption" value={data.household?.daily_consumption_kwh} unit="kWh/day" />
-        <MetricCard title="Daily Irradiation" value={data.solar_irradiation?.daily_kwh_m2} unit="kWh/m²/day" />
+        <MetricCard title="Daily Generation" value={data.generation?.daily_kwh} unit="kWh/day" icon={<BoltIcon />} accent="solar" />
+        <MetricCard title="Daily Consumption" value={data.household?.daily_consumption_kwh} unit="kWh/day" icon={<HomeIcon />} accent="teal" />
+        <MetricCard title="Daily Irradiation" value={data.solar_irradiation?.daily_kwh_m2} unit="kWh/m²/day" icon={<SunIcon />} accent="solar" />
       </div>
 
       <WeatherPanel weather={data.weather} />
