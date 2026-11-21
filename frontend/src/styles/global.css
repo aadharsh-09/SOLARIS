@@ -208,10 +208,11 @@ body {
   box-shadow: 0 0 0 2px rgba(255, 159, 28, 0.3);
 }
 
-/* Dark map: darken the standard OpenStreetMap tiles (no API key needed).
-   Only the tile layer is filtered, so the marker and controls keep their colours. */
+/* Dark black-and-white map: standard OpenStreetMap tiles made fully grey, then
+   inverted (no API key needed). Only the tile layer is filtered, so the marker
+   and controls keep their colours. */
 .map-panel .leaflet-tile-pane {
-  filter: invert(1) hue-rotate(180deg) brightness(0.9) contrast(0.9) saturate(0.7);
+  filter: grayscale(1) invert(1) brightness(0.95) contrast(1.05);
 }
 
 button.calculate-button {
