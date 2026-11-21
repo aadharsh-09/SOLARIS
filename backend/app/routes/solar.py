@@ -37,7 +37,11 @@ def solar(
     tilt: float = Query(ge=0, le=90),
     facing: Literal["N", "NE", "E", "SE", "S", "SW", "W", "NW"] = "S",
     capacity_kw: float = Query(gt=0),
-    daily_consumption: float = Query(ge=0)
+    daily_consumption: float = Query(ge=0),
+    # Optional: the browser can fetch the weather itself (from the visitor's own
+    # IP) and send the daily irradiation. This avoids Open-Meteo rate limits that
+    # hit shared server IPs such as Render's. If omitted, the backend fetches it.
+    daily_irradiation: float | None = Query(default=None, ge=0, le=15)
 ):
 
     try:
@@ -49,18 +53,36 @@ def solar(
         # Panel facing direction (N, NE, ...) -> azimuth angle for the weather API
         azimuth = FACING_TO_AZIMUTH[facing]
 
-        # Step 1: Fetch weather data
-        weather_data = get_weather(
-            latitude,
-            longitude,
-            tilt,
-            azimuth
-        )
+        if daily_irradiation is None:
+            # Step 1: Fetch weather data
+            weather_data = get_weather(
+                latitude,
+                longitude,
+                tilt,
+                azimuth
+            )
 
-        # Step 2: Process weather data
-        processed_weather = process_weather_data(weather_data)
+            # Step 2: Process weather data
+            processed_weather = process_weather_data(weather_data)
 
-        daily_irradiation = processed_weather["daily_energy_kwh_m2"]
+            daily_irradiation = processed_weather["daily_energy_kwh_m2"]
+            location_info = {
+                "latitude": processed_weather["latitude"],
+                "longitude": processed_weather["longitude"],
+                "timezone": processed_weather["timezone"]
+            }
+            weather_info = {
+                "current": processed_weather["current"],
+                "hourly": processed_weather["hourly"]
+            }
+        else:
+            # Irradiation supplied by the browser; weather is shown from there too
+            location_info = {
+                "latitude": latitude,
+                "longitude": longitude,
+                "timezone": None
+            }
+            weather_info = None
 
         # Step 3: Calculate daily solar generation
         daily_generation = calculate_solar_generation(
@@ -95,11 +117,7 @@ def solar(
 
         # Step 8: Return results
         return {
-            "location": {
-                "latitude": processed_weather["latitude"],
-                "longitude": processed_weather["longitude"],
-                "timezone": processed_weather["timezone"]
-            },
+            "location": location_info,
 
             "solar_system": {
                 "capacity_kw": capacity_kw,
@@ -112,10 +130,7 @@ def solar(
                 "daily_kwh_m2": daily_irradiation
             },
 
-            "weather": {
-                "current": processed_weather["current"],
-                "hourly": processed_weather["hourly"]
-            },
+            "weather": weather_info,
 
             "household": {
                 "daily_consumption_kwh": daily_consumption,

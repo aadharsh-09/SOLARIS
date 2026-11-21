@@ -47,6 +47,14 @@ def _cache_set(key, data):
         _cache[key] = (time.time(), data)
 
 
+def _error_reason(error):
+    """Open-Meteo explains a rejected call in the JSON body ({"reason": ...})."""
+    try:
+        return json.loads(error.read().decode("utf-8")).get("reason")
+    except Exception:
+        return None
+
+
 def get_weather(latitude, longitude, tilt, azimuth):
 
     # ~1 km precision is plenty: the weather model grid is much coarser
@@ -76,6 +84,7 @@ def get_weather(latitude, longitude, tilt, azimuth):
     ssl_context = ssl.create_default_context(cafile=certifi.where())
 
     last_error = None
+    last_reason = None
 
     for delay in (0, *RETRY_DELAYS):
         if delay:
@@ -90,6 +99,7 @@ def get_weather(latitude, longitude, tilt, azimuth):
 
         except HTTPError as error:
             last_error = error
+            last_reason = _error_reason(error)
             if error.code != 429:
                 break
 
@@ -99,8 +109,8 @@ def get_weather(latitude, longitude, tilt, azimuth):
 
     if isinstance(last_error, HTTPError) and last_error.code == 429:
         raise RuntimeError(
-            "The weather service is receiving too many requests right now. "
-            "Please wait a minute and try again."
+            "Weather service rate limit reached: "
+            + (last_reason or "too many requests from this network.")
         )
 
     raise RuntimeError(f"Could not fetch weather data: {last_error}")

@@ -1,4 +1,5 @@
 import { useState, useCallback } from 'react';
+import { fetchWeatherDirect } from './weatherApi';
 
 export const API_BASE_URL =
   import.meta.env.VITE_API_BASE_URL || 'http://127.0.0.1:8000';
@@ -12,8 +13,21 @@ export const useSolarData = () => {
     setLoading(true);
     setError(null);
     try {
+      // 1) Get the weather from the browser (visitor's own IP). If that fails,
+      //    fall back to letting the backend fetch it.
+      let weather = null;
+      try {
+        weather = await fetchWeatherDirect(params);
+      } catch (weatherError) {
+        console.warn('Browser weather fetch failed, using backend instead:', weatherError);
+      }
+
+      const query = weather
+        ? { ...params, daily_irradiation: weather.daily_energy_kwh_m2 }
+        : params;
+
       const qs = new URLSearchParams(
-        Object.entries(params).map(([k, v]) => [k, String(v)])
+        Object.entries(query).map(([k, v]) => [k, String(v)])
       );
       const response = await fetch(`${API_BASE_URL}/solar?${qs}`);
       if (!response.ok) {
@@ -27,6 +41,9 @@ export const useSolarData = () => {
         throw new Error(detail);
       }
       const json = await response.json();
+      if (weather && !json.weather) {
+        json.weather = { current: weather.current, hourly: weather.hourly };
+      }
       setData(json);
       return json;
     } catch (err) {
