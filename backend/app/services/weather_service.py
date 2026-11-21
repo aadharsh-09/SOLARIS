@@ -1,11 +1,23 @@
 
 import ssl
+import time
 import certifi
 import json
+from threading import Lock
+from urllib.error import HTTPError
 from urllib.parse import urlencode
 from urllib.request import Request, urlopen
 
 BASE_URL = "https://api.open-meteo.com/v1/forecast"
+
+# Open-Meteo's free tier is rate limited per IP, so identical requests
+# (same place, tilt and facing) are served from memory for a few minutes.
+CACHE_TTL_SECONDS = 600
+MAX_CACHE_ENTRIES = 500
+_cache = {}
+_cache_lock = Lock()
+
+RETRY_DELAYS = (1, 3)  # seconds to wait before retrying after a 429
 
 CURRENT_FIELDS = (
     "temperature_2m,apparent_temperature,relative_humidity_2m,"
@@ -13,7 +25,35 @@ CURRENT_FIELDS = (
 )
 
 
+def _cache_get(key):
+    with _cache_lock:
+        entry = _cache.get(key)
+        if entry and time.time() - entry[0] < CACHE_TTL_SECONDS:
+            return entry[1]
+    return None
+
+
+def _cache_set(key, data):
+    with _cache_lock:
+        if len(_cache) >= MAX_CACHE_ENTRIES:
+            now = time.time()
+            for old_key in [
+                k for k, (t, _) in _cache.items()
+                if now - t >= CACHE_TTL_SECONDS
+            ]:
+                del _cache[old_key]
+            if len(_cache) >= MAX_CACHE_ENTRIES:
+                _cache.clear()
+        _cache[key] = (time.time(), data)
+
+
 def get_weather(latitude, longitude, tilt, azimuth):
+
+    # ~1 km precision is plenty: the weather model grid is much coarser
+    cache_key = (round(latitude, 2), round(longitude, 2), round(tilt), azimuth)
+    cached = _cache_get(cache_key)
+    if cached is not None:
+        return cached
 
     params = {
         "latitude": latitude,
@@ -35,14 +75,35 @@ def get_weather(latitude, longitude, tilt, azimuth):
 
     ssl_context = ssl.create_default_context(cafile=certifi.where())
 
-    try:
-        with urlopen(request, timeout=20, context=ssl_context) as response:
-            data = json.load(response)
+    last_error = None
 
-        return data
+    for delay in (0, *RETRY_DELAYS):
+        if delay:
+            time.sleep(delay)
 
-    except Exception as error:
-        raise RuntimeError(f"Could not fetch weather data: {error}")
+        try:
+            with urlopen(request, timeout=20, context=ssl_context) as response:
+                data = json.load(response)
+
+            _cache_set(cache_key, data)
+            return data
+
+        except HTTPError as error:
+            last_error = error
+            if error.code != 429:
+                break
+
+        except Exception as error:
+            last_error = error
+            break
+
+    if isinstance(last_error, HTTPError) and last_error.code == 429:
+        raise RuntimeError(
+            "The weather service is receiving too many requests right now. "
+            "Please wait a minute and try again."
+        )
+
+    raise RuntimeError(f"Could not fetch weather data: {last_error}")
 
 
 def process_weather_data(data):

@@ -12,14 +12,19 @@ const ResultsDashboard = ({ location, formData }) => {
 
   useEffect(() => {
     if (!location) return;
-    fetchSolarData({
-      latitude: location.latitude,
-      longitude: location.longitude,
-      tilt: formData.tilt,
-      facing: formData.facing,
-      capacity_kw: formData.capacity_kw,
-      daily_consumption: formData.daily_consumption,
-    });
+    // Short delay so quick repeated changes (and React dev mode's double
+    // effect run) don't each trigger a backend / weather API request.
+    const timer = setTimeout(() => {
+      fetchSolarData({
+        latitude: location.latitude,
+        longitude: location.longitude,
+        tilt: formData.tilt,
+        facing: formData.facing,
+        capacity_kw: formData.capacity_kw,
+        daily_consumption: formData.daily_consumption,
+      });
+    }, 500);
+    return () => clearTimeout(timer);
   }, [location, formData, fetchSolarData]);
 
   if (loading) return <LoadingState />;
