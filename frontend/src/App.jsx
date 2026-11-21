@@ -13,6 +13,14 @@ const DEFAULT_FORM = {
 function App() {
   const [selectedLocation, setSelectedLocation] = useState(null);
   const [formData, setFormData] = useState(DEFAULT_FORM);
+  // Snapshot of the location + inputs taken when "Calculate Analysis" is clicked.
+  // Results only change when this changes, never on map clicks or typing.
+  const [request, setRequest] = useState(null);
+
+  const handleCalculate = (values) => {
+    setFormData(values);
+    setRequest({ location: selectedLocation, formData: values });
+  };
 
   return (
     <div className="app">
@@ -27,16 +35,24 @@ function App() {
 
         <section className="workspace">
           <MapPanel location={selectedLocation} onLocationChange={setSelectedLocation} />
-          <SolarSystemForm data={formData} onChange={setFormData} />
+          <SolarSystemForm
+            data={formData}
+            onChange={handleCalculate}
+            hasLocation={Boolean(selectedLocation)}
+          />
         </section>
 
         <section className="live-data">
           <h2 className="section-title">Live Data</h2>
-          {selectedLocation ? (
-            <ResultsDashboard location={selectedLocation} formData={formData} />
+          {request ? (
+            <ResultsDashboard location={request.location} formData={request.formData} />
           ) : (
             <div className="placeholder">
-              <p>Search for a place or click the map to choose a location</p>
+              <p>
+                {selectedLocation
+                  ? 'Fill in your system details and click Calculate Analysis'
+                  : 'Search for a place or click the map to choose a location, then click Calculate Analysis'}
+              </p>
             </div>
           )}
         </section>

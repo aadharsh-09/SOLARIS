@@ -14,7 +14,7 @@ const FACING_OPTIONS = [
 
 const NUMERIC_FIELDS = ['capacity_kw', 'tilt', 'daily_consumption'];
 
-const SolarSystemForm = ({ data, onChange }) => {
+const SolarSystemForm = ({ data, onChange, hasLocation }) => {
   const [formData, setFormData] = useState(data);
 
   const [error, setError] = useState(null);
@@ -26,6 +26,10 @@ const SolarSystemForm = ({ data, onChange }) => {
 
   const handleSubmit = async () => {
     setError(null);
+    if (!hasLocation) {
+      setError('Please choose a location on the map (or search for one) first');
+      return;
+    }
     try {
       const numeric = Object.fromEntries(
         NUMERIC_FIELDS.map((k) => [k, Number(formData[k])])
