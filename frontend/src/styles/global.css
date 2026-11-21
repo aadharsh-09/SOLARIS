@@ -379,6 +379,13 @@ button.calculate-button:hover {
   color: var(--text-primary);
 }
 
+.weather-charts {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  min-width: 0;
+}
+
 .weather-now {
   display: flex;
   align-items: center;
