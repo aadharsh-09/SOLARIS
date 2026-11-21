@@ -3,15 +3,18 @@ import { MapContainer, TileLayer, Marker, useMapEvents, useMap } from 'react-lea
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import { SearchIcon } from './ui/Icons';
-import markerIcon2x from 'leaflet/dist/images/marker-icon-2x.png';
-import markerIcon from 'leaflet/dist/images/marker-icon.png';
-import markerShadow from 'leaflet/dist/images/marker-shadow.png';
 
-// Vite doesn't resolve Leaflet's default marker icon paths, so set them explicitly
-L.Icon.Default.mergeOptions({
-  iconRetinaUrl: markerIcon2x,
-  iconUrl: markerIcon,
-  shadowUrl: markerShadow,
+// Teal location pin (replaces Leaflet's default blue marker, so no image files are needed)
+const PIN_SVG =
+  '<svg xmlns="http://www.w3.org/2000/svg" width="32" height="42" viewBox="0 0 32 42">' +
+  '<path d="M16 40S3 28.5 3 16.5a13 13 0 0 1 26 0C29 28.5 16 40 16 40Z" fill="#45D6B0" stroke="#0B1220" stroke-width="2"/>' +
+  '<circle cx="16" cy="16.5" r="5" fill="#0B1220"/></svg>';
+
+const pinIcon = L.divIcon({
+  html: PIN_SVG,
+  className: 'location-pin',
+  iconSize: [32, 42],
+  iconAnchor: [16, 40],
 });
 
 const DEFAULT_CENTER = [13.0, 80.2]; // Chennai area
@@ -168,7 +171,7 @@ export const MapPanel = ({ location, onLocationChange }) => {
         />
         <ClickHandler onPick={onLocationChange} onStatus={setStatus} />
         <FlyTo location={location} />
-        {position && <Marker position={position} />}
+        {position && <Marker position={position} icon={pinIcon} />}
       </MapContainer>
       {status && <div className="map-status" role="status">{status}</div>}
     </div>
