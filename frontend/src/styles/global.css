@@ -277,14 +277,14 @@ button.calculate-button:hover {
 
 .dashboard-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 1rem;
   margin-bottom: 1.5rem;
 }
 
 .dashboard-charts {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  grid-template-columns: 1fr;
   gap: 1.5rem;
 }
 
@@ -359,10 +359,10 @@ button.calculate-button:hover {
   margin-top: 0.4rem;
 }
 
-/* ---------- Weather (text left, graph right) ---------- */
+/* ---------- Weather (summary on top, two graphs side by side) ---------- */
 .weather-panel {
-  display: grid;
-  grid-template-columns: minmax(240px, 1fr) minmax(0, 2fr);
+  display: flex;
+  flex-direction: column;
   gap: 1.5rem;
   margin-bottom: 1.5rem;
   background: var(--card-bg);
@@ -372,25 +372,24 @@ button.calculate-button:hover {
   padding: 1.5rem;
 }
 
-.weather-text h3,
+.weather-summary h3,
 .weather-chart h3 {
   font-size: 1.1rem;
   margin-bottom: 1rem;
   color: var(--text-primary);
 }
 
-.weather-charts {
+.weather-summary-row {
   display: flex;
-  flex-direction: column;
-  gap: 1.5rem;
-  min-width: 0;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 1.25rem 2.5rem;
 }
 
 .weather-now {
   display: flex;
   align-items: center;
   gap: 1rem;
-  margin-bottom: 1rem;
 }
 
 .weather-icon {
@@ -411,18 +410,23 @@ button.calculate-button:hover {
 
 .weather-stats {
   list-style: none;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  flex: 1;
 }
 
 .weather-stats li {
+  flex: 1 1 110px;
   display: flex;
-  justify-content: space-between;
-  padding: 0.45rem 0;
-  border-bottom: 1px solid var(--card-border);
+  flex-direction: column;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.7rem 0.8rem;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid var(--card-border);
+  border-radius: var(--radius-sm);
   font-size: 0.95rem;
-}
-
-.weather-stats li:last-child {
-  border-bottom: none;
 }
 
 .weather-stats span {
@@ -431,13 +435,87 @@ button.calculate-button:hover {
 
 .weather-stats strong {
   color: var(--accent);
+  font-size: 1.1rem;
+}
+
+.weather-charts {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1.5rem;
+}
+
+.weather-chart {
+  min-width: 0;
+}
+
+/* ---------- Financial calculation rows ---------- */
+.calc-section {
+  margin-bottom: 1.25rem;
+}
+
+.calc-section h4 {
+  font-size: 0.95rem;
+  color: var(--accent);
+  margin-bottom: 0.5rem;
+}
+
+.calc-row {
+  display: grid;
+  grid-template-columns: minmax(130px, 1fr) minmax(0, 2fr) minmax(110px, auto);
+  gap: 0.75rem;
+  align-items: center;
+  padding: 0.6rem 0.8rem;
+  margin-bottom: 0.4rem;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid var(--card-border);
+  border-radius: var(--radius-sm);
+}
+
+.calc-label {
+  color: var(--text-primary);
+  font-weight: 500;
+}
+
+.calc-formula {
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+}
+
+.calc-result {
+  color: var(--accent);
+  text-align: right;
+  white-space: nowrap;
+}
+
+.calc-row-total {
+  border-color: var(--accent);
+  background: rgba(255, 159, 28, 0.12);
+}
+
+.calc-row-total .calc-result {
+  font-size: 1.25rem;
 }
 
 /* ---------- Responsive ---------- */
 @media (max-width: 900px) {
   .workspace,
-  .weather-panel {
+  .weather-charts {
     grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 600px) {
+  .dashboard-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .calc-row {
+    grid-template-columns: 1fr;
+    gap: 0.25rem;
+  }
+
+  .calc-result {
+    text-align: left;
   }
 }
 

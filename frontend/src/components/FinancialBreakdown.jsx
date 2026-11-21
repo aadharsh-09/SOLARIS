@@ -1,32 +1,107 @@
 import { formatCurrency } from '../utils/formatters';
 
+const kwh = (value) => `${Number(value).toFixed(2)} kWh`;
+
+// Negative amounts are shown in brackets when used inside a formula
+const inFormula = (value) =>
+  value < 0 ? `(${formatCurrency(value)})` : formatCurrency(value);
+
+const Row = ({ label, formula, result, highlight }) => (
+  <div className={`calc-row${highlight ? ' calc-row-total' : ''}`}>
+    <span className="calc-label">{label}</span>
+    <span className="calc-formula">{formula}</span>
+    <strong className="calc-result">{result}</strong>
+  </div>
+);
+
 const FinancialBreakdown = ({ data }) => {
+  const fin = data?.financial_analysis;
+  const monthlyGen = data?.generation?.estimated_monthly_kwh;
+  const dailyGen = data?.generation?.daily_kwh;
+  const monthlyUsed = data?.household?.monthly_consumption_kwh;
+  const dailyUsed = data?.household?.daily_consumption_kwh;
+  const diff = data?.energy_comparison?.difference_kwh;
+
+  if (!fin || [monthlyGen, dailyGen, monthlyUsed, dailyUsed, diff].some((v) => typeof v !== 'number')) {
+    return null;
+  }
+
+  const gridTariff = fin.grid_tariff_inr_per_kwh;
+  const exportTariff = fin.export_tariff_inr_per_kwh;
+  const hasSurplus = diff > 0;
+  const net = fin.net_bill_with_solar_inr;
+
   return (
     <div className="financial-breakdown">
       <h3>Financial Analysis</h3>
-      <div className="breakdown-grid">
-        <div className="breakdown-item">
-          <h4>Grid Cost Without Solar</h4>
-          <p className="breakdown-value">{formatCurrency(data.grid_cost_without_solar_inr)}</p>
-        </div>
-        <div className="breakdown-item">
-          <h4>Solar Energy Used</h4>
-          <p className="breakdown-value">
-            {data.solar_energy_used_kwh > 0 ? data.solar_energy_used_kwh + ' kWh' : 'N/A'}
-          </p>
-        </div>
-        <div className="breakdown-item">
-          <h4>Money Saved</h4>
-          <p className="breakdown-value">{formatCurrency(data.money_saved_inr)}</p>
-        </div>
-        <div className="breakdown-item">
-          <h4>Export Credit</h4>
-          <p className="breakdown-value">{formatCurrency(data.export_credit_inr)}</p>
-        </div>
-        <div className="breakdown-item">
-          <h4>Total Monthly Benefit</h4>
-          <p className="breakdown-value">{formatCurrency(data.total_monthly_benefit_inr)}</p>
-        </div>
+
+      <div className="calc-section">
+        <h4>1. Monthly energy (30 days)</h4>
+        <Row
+          label="Solar generated"
+          formula={`${dailyGen.toFixed(3)} kWh/day × 30`}
+          result={kwh(monthlyGen)}
+        />
+        <Row
+          label="Energy used"
+          formula={`${dailyUsed} kWh/day × 30`}
+          result={kwh(monthlyUsed)}
+        />
+        <Row
+          label="Difference"
+          formula={`${kwh(monthlyGen)} − ${kwh(monthlyUsed)}`}
+          result={`${diff > 0 ? '+' : ''}${diff.toFixed(2)} kWh ${diff > 0 ? '(surplus)' : diff < 0 ? '(deficit)' : ''}`}
+        />
+      </div>
+
+      <div className="calc-section">
+        <h4>2. Bill without solar</h4>
+        <Row
+          label="Electricity bill"
+          formula={`${kwh(monthlyUsed)} × ₹${gridTariff}/kWh`}
+          result={formatCurrency(fin.grid_cost_without_solar_inr)}
+        />
+      </div>
+
+      <div className="calc-section">
+        <h4>3. Bill with solar</h4>
+        <Row
+          label="Bought from grid"
+          formula={hasSurplus || diff === 0
+            ? 'Solar covers all your usage'
+            : `${kwh(monthlyUsed)} − ${kwh(monthlyGen)}`}
+          result={kwh(fin.grid_energy_needed_kwh)}
+        />
+        <Row
+          label="Grid bill"
+          formula={`${kwh(fin.grid_energy_needed_kwh)} × ₹${gridTariff}/kWh`}
+          result={formatCurrency(fin.grid_cost_with_solar_inr)}
+        />
+        <Row
+          label="Exported to grid"
+          formula={hasSurplus ? `${kwh(monthlyGen)} − ${kwh(monthlyUsed)}` : 'No surplus to export'}
+          result={kwh(fin.surplus_exported_kwh)}
+        />
+        <Row
+          label="Export credit"
+          formula={`${kwh(fin.surplus_exported_kwh)} × ₹${exportTariff}/kWh`}
+          result={formatCurrency(fin.export_credit_inr)}
+        />
+        <Row
+          label="Net bill with solar"
+          formula={`${formatCurrency(fin.grid_cost_with_solar_inr)} − ${formatCurrency(fin.export_credit_inr)}`}
+          result={net < 0 ? `${formatCurrency(-net)} credit` : formatCurrency(net)}
+        />
+      </div>
+
+      <div className="calc-section">
+        <h4>4. Monthly saving</h4>
+        <Row
+          highlight
+          label="You save"
+          formula={`${formatCurrency(fin.grid_cost_without_solar_inr)} − ${inFormula(net)}`}
+          result={formatCurrency(fin.total_monthly_benefit_inr)}
+        />
       </div>
     </div>
   );

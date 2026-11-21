@@ -43,10 +43,31 @@ def calculate_savings(
     # Credit earned from exported electricity
     export_credit = surplus_exported * export_tariff
 
+    # Electricity still bought from the grid after using solar
+    grid_energy_needed = max(
+        monthly_consumption - monthly_generation,
+        0
+    )
+
+    # Grid bill with solar, and net bill after subtracting the export credit
+    grid_cost_with_solar = grid_energy_needed * grid_tariff
+    net_bill_with_solar = grid_cost_with_solar - export_credit
+
     # Total financial benefit
     total_benefit = money_saved + export_credit
 
     return {
+        "grid_tariff_inr_per_kwh": grid_tariff,
+        "export_tariff_inr_per_kwh": export_tariff,
+        "grid_energy_needed_kwh": round(
+            grid_energy_needed, 3
+        ),
+        "grid_cost_with_solar_inr": round(
+            grid_cost_with_solar, 2
+        ),
+        "net_bill_with_solar_inr": round(
+            net_bill_with_solar, 2
+        ),
         "grid_cost_without_solar_inr": round(
             grid_cost_without_solar, 2
         ),

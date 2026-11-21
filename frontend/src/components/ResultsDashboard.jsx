@@ -36,17 +36,15 @@ const ResultsDashboard = ({ location, formData }) => {
     <div className="results-dashboard">
       <div className="dashboard-grid">
         <MetricCard title="Daily Generation" value={data.generation?.daily_kwh} unit="kWh/day" />
-        <MetricCard title="Monthly Generation" value={data.generation?.estimated_monthly_kwh} unit="kWh/month" />
-        <MetricCard title="Daily Irradiation" value={data.solar_irradiation?.daily_kwh_m2} unit="kWh/m²/day" />
         <MetricCard title="Daily Consumption" value={data.household?.daily_consumption_kwh} unit="kWh/day" />
-        <MetricCard title="Monthly Energy Difference" value={data.energy_comparison?.difference_kwh} unit="kWh/month" />
+        <MetricCard title="Daily Irradiation" value={data.solar_irradiation?.daily_kwh_m2} unit="kWh/m²/day" />
       </div>
 
       <WeatherPanel weather={data.weather} />
 
       <div className="dashboard-charts">
         <GenerationChart data={data.generation} />
-        <FinancialBreakdown data={data.financial_analysis} />
+        <FinancialBreakdown data={data} />
       </div>
     </div>
   );

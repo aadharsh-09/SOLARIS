@@ -41,21 +41,23 @@ const WeatherPanel = ({ weather }) => {
 
   return (
     <div className="weather-panel">
-      <div className="weather-text">
+      <div className="weather-summary">
         <h3>Current Weather</h3>
-        <div className="weather-now">
-          <span className="weather-icon" aria-hidden="true">{icon}</span>
-          <div>
-            <p className="weather-temp">{show(current.temperature, '°C')}</p>
-            <p className="weather-condition">{text}</p>
+        <div className="weather-summary-row">
+          <div className="weather-now">
+            <span className="weather-icon" aria-hidden="true">{icon}</span>
+            <div>
+              <p className="weather-temp">{show(current.temperature, '°C')}</p>
+              <p className="weather-condition">{text}</p>
+            </div>
           </div>
-        </div>
 
-        <ul className="weather-stats">
-          <li><span>Feels like</span><strong>{show(current.feels_like, '°C')}</strong></li>
-          <li><span>Cloud cover</span><strong>{show(current.cloud_cover, '%')}</strong></li>
-          <li><span>Rain</span><strong>{show(current.precipitation, ' mm')}</strong></li>
-        </ul>
+          <ul className="weather-stats">
+            <li><span>Feels like</span><strong>{show(current.feels_like, '°C')}</strong></li>
+            <li><span>Cloud cover</span><strong>{show(current.cloud_cover, '%')}</strong></li>
+            <li><span>Rain</span><strong>{show(current.precipitation, ' mm')}</strong></li>
+          </ul>
+        </div>
       </div>
 
       <div className="weather-charts">
