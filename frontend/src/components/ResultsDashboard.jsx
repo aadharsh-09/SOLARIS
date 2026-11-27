@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react';
+import { useEffect } from 'react';
 import { useSolarData } from '../api/solarApi';
 import MetricCard from './MetricCard';
 import GenerationChart from './GenerationChart';
@@ -6,10 +6,10 @@ import FinancialBreakdown from './FinancialBreakdown';
 import WeatherPanel from './WeatherPanel';
 import LoadingState from './LoadingState';
 import ErrorMessage from './ErrorMessage';
+import { BoltIcon, HomeIcon, SunIcon } from './ui/Icons';
 
 const ResultsDashboard = ({ location, formData }) => {
   const { data, loading, error, fetchSolarData } = useSolarData();
-  const resultsRef = useRef(null);
 
   useEffect(() => {
     if (!location) return;
@@ -29,23 +29,16 @@ const ResultsDashboard = ({ location, formData }) => {
     return () => clearTimeout(timer);
   }, [location, formData, fetchSolarData]);
 
-  // Once the results have loaded, scroll them into view (handy on phones).
-  useEffect(() => {
-    if (data && !loading && resultsRef.current) {
-      resultsRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    }
-  }, [data, loading]);
-
   if (loading) return <LoadingState />;
   if (error) return <ErrorMessage message={error} />;
   if (!data) return null;
 
   return (
-    <div className="results-dashboard" ref={resultsRef}>
+    <div className="results-dashboard">
       <div className="dashboard-grid">
-        <MetricCard title="Daily Generation" value={data.generation?.daily_kwh} unit="kWh/day" />
-        <MetricCard title="Daily Consumption" value={data.household?.daily_consumption_kwh} unit="kWh/day" />
-        <MetricCard title="Daily Irradiation" value={data.solar_irradiation?.daily_kwh_m2} unit="kWh/m²/day" />
+        <MetricCard title="Daily Generation" value={data.generation?.daily_kwh} unit="kWh/day" icon={<BoltIcon />} accent="solar" />
+        <MetricCard title="Daily Consumption" value={data.household?.daily_consumption_kwh} unit="kWh/day" icon={<HomeIcon />} accent="teal" />
+        <MetricCard title="Daily Irradiation" value={data.solar_irradiation?.daily_kwh_m2} unit="kWh/m²/day" icon={<SunIcon />} accent="solar" />
       </div>
 
       <WeatherPanel weather={data.weather} />
