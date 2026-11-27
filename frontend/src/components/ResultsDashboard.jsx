@@ -42,7 +42,7 @@ const ResultsDashboard = ({ location, formData }) => {
   if (!data) return null;
 
   return (
-    <div className="results-dashboard" ref={resultsRef} style={{ scrollMarginTop: '5rem' }}>
+    <div className="results-dashboard" ref={resultsRef} style={{ scrollMarginTop: '3rem' }}>
       <div className="dashboard-grid">
         <MetricCard title="Daily Generation" value={data.generation?.daily_kwh} unit="kWh/day" icon={<BoltIcon />} accent="solar" />
         <MetricCard title="Daily Consumption" value={data.household?.daily_consumption_kwh} unit="kWh/day" icon={<HomeIcon />} accent="teal" />
