@@ -540,6 +540,18 @@ button.calculate-button:active {
   outline: none;
 }
 
+/* No focus outline / tap flash when touching a chart */
+.chart-area,
+.chart-area * {
+  outline: none !important;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.chart-area {
+  -webkit-user-select: none;
+  user-select: none;
+}
+
 /* ---------- Weather ---------- */
 .weather-panel {
   display: flex;

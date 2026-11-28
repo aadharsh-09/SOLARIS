@@ -3,7 +3,9 @@ import {
   CartesianGrid, XAxis, YAxis, Tooltip, ReferenceLine,
 } from 'recharts';
 import { CloudIcon, DropIcon, ThermoIcon } from './ui/Icons';
-import { CHART_COLORS, axisProps, gridProps, tooltipProps } from './chartTheme';
+import {
+  CHART_COLORS, axisProps, gridProps, narrowTick, tooltipPropsFor, useIsNarrow,
+} from './chartTheme';
 
 // WMO weather codes (as returned by Open-Meteo) -> short text + icon
 const describeWeather = (code, isDay) => {
@@ -26,6 +28,7 @@ const show = (value, unit) =>
   value === null || value === undefined ? 'N/A' : `${value}${unit}`;
 
 const WeatherPanel = ({ weather }) => {
+  const narrow = useIsNarrow();
   const current = weather?.current;
   const hourly = weather?.hourly;
   if (!current || !hourly?.length) return null;
@@ -66,11 +69,11 @@ const WeatherPanel = ({ weather }) => {
           <h3>Today&apos;s Hourly Temperature</h3>
           <div className="chart-area">
             <ResponsiveContainer>
-              <LineChart data={chartData}>
+              <LineChart data={chartData} accessibilityLayer={false}>
                 <CartesianGrid {...gridProps} />
-                <XAxis dataKey="hour" {...axisProps} interval={2} />
-                <YAxis unit="°C" width={55} {...axisProps} axisLine={false} domain={['dataMin - 2', 'dataMax + 2']} />
-                <Tooltip {...tooltipProps} />
+                <XAxis dataKey="hour" {...axisProps} {...(narrow ? narrowTick : {})} interval={narrow ? 5 : 2} />
+                <YAxis unit="°C" width={narrow ? 48 : 55} {...axisProps} {...(narrow ? narrowTick : {})} axisLine={false} domain={['dataMin - 2', 'dataMax + 2']} />
+                <Tooltip {...tooltipPropsFor(narrow)} />
                 <ReferenceLine x={nowLabel} stroke={CHART_COLORS.axis} strokeDasharray="4 4" label={{ value: 'Now', fill: CHART_COLORS.axis, position: 'top', fontSize: 12 }} />
                 <Line type="monotone" dataKey="temperature" name="Temperature (°C)" stroke={CHART_COLORS.teal} strokeWidth={2.5} dot={false} />
               </LineChart>
@@ -79,14 +82,14 @@ const WeatherPanel = ({ weather }) => {
         </div>
 
         <div className="weather-chart">
-          <h3>Solar Irradiance Throughout the Day</h3>
+          <h3>Solar Irradiance Throughout the Day{narrow ? ' (W/m²)' : ''}</h3>
           <div className="chart-area">
             <ResponsiveContainer>
-              <AreaChart data={chartData}>
+              <AreaChart data={chartData} accessibilityLayer={false}>
                 <CartesianGrid {...gridProps} />
-                <XAxis dataKey="hour" {...axisProps} interval={2} />
-                <YAxis unit=" W/m²" width={80} {...axisProps} axisLine={false} domain={[0, 'auto']} />
-                <Tooltip {...tooltipProps} />
+                <XAxis dataKey="hour" {...axisProps} {...(narrow ? narrowTick : {})} interval={narrow ? 5 : 2} />
+                <YAxis unit={narrow ? '' : ' W/m²'} width={narrow ? 40 : 80} {...axisProps} {...(narrow ? narrowTick : {})} axisLine={false} domain={[0, 'auto']} />
+                <Tooltip {...tooltipPropsFor(narrow)} />
                 <ReferenceLine x={nowLabel} stroke={CHART_COLORS.axis} strokeDasharray="4 4" label={{ value: 'Now', fill: CHART_COLORS.axis, position: 'top', fontSize: 12 }} />
                 <Area type="monotone" dataKey="irradiance" name="Irradiance (W/m²)" stroke={CHART_COLORS.solar} strokeWidth={2.5} fill={CHART_COLORS.solar} fillOpacity={0.18} />
               </AreaChart>

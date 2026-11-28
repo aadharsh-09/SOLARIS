@@ -3,13 +3,16 @@ import {
 } from 'recharts';
 import Card from './ui/Card';
 import { ChartIcon } from './ui/Icons';
-import { CHART_COLORS, axisProps, gridProps, tooltipProps } from './chartTheme';
+import {
+  CHART_COLORS, axisProps, gridProps, narrowTick, tooltipPropsFor, useIsNarrow,
+} from './chartTheme';
 
 // Illustrative daily curve scaled to the API's daily total (the API only returns totals)
 const HOURS = [6, 8, 10, 12, 14, 16, 18];
 const SHAPE = [0.03, 0.12, 0.22, 0.26, 0.22, 0.12, 0.03];
 
 const GenerationChart = ({ data }) => {
+  const narrow = useIsNarrow();
   const daily = data?.daily_kwh || 0;
   const chartData = HOURS.map((h, i) => ({
     hour: `${String(h).padStart(2, '0')}:00`,
@@ -20,7 +23,7 @@ const GenerationChart = ({ data }) => {
     <Card title="Estimated Daily Generation Profile" icon={<ChartIcon />} className="chart-container">
       <div className="chart-area chart-area-lg">
         <ResponsiveContainer>
-          <AreaChart data={chartData} margin={{ top: 8, right: 12, left: 0, bottom: 0 }}>
+          <AreaChart data={chartData} accessibilityLayer={false} margin={{ top: 8, right: 12, left: 0, bottom: 0 }}>
             <defs>
               <linearGradient id="genFill" x1="0" y1="0" x2="0" y2="1">
                 <stop offset="0%" stopColor={CHART_COLORS.teal} stopOpacity={0.28} />
@@ -28,9 +31,9 @@ const GenerationChart = ({ data }) => {
               </linearGradient>
             </defs>
             <CartesianGrid {...gridProps} />
-            <XAxis dataKey="hour" {...axisProps} />
-            <YAxis unit=" kWh" width={70} {...axisProps} axisLine={false} />
-            <Tooltip {...tooltipProps} />
+            <XAxis dataKey="hour" {...axisProps} {...(narrow ? narrowTick : {})} interval={narrow ? 1 : 0} />
+            <YAxis unit=" kWh" width={narrow ? 56 : 70} {...axisProps} {...(narrow ? narrowTick : {})} axisLine={false} />
+            <Tooltip {...tooltipPropsFor(narrow)} />
             <Area
               type="monotone"
               dataKey="kwh"
