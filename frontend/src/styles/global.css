@@ -687,7 +687,7 @@ button.calculate-button:active {
 
 .calc-formula {
   color: var(--text-2);
-  font-size: var(--text-sm);
+  font-size: var(--text-xs);
 }
 
 .calc-result {
