@@ -733,14 +733,30 @@ button.calculate-button:active {
     grid-template-columns: 1fr;
   }
 
+  /* Phone: label on the left and result on the right of the first line,
+     the formula underneath, so the row uses the full width */
   .calc-row {
-    grid-template-columns: 1fr;
-    gap: var(--space-1);
+    grid-template-columns: minmax(0, 1fr) auto;
+    grid-template-areas:
+      "label result"
+      "formula formula";
+    gap: var(--space-1) var(--space-3);
+    align-items: baseline;
+  }
+
+  .calc-label {
+    grid-area: label;
   }
 
   .calc-result {
-    text-align: left;
-    white-space: normal;
+    grid-area: result;
+    text-align: right;
+    white-space: nowrap;
+  }
+
+  .calc-formula {
+    grid-area: formula;
+    overflow-wrap: anywhere;
   }
 }
 
