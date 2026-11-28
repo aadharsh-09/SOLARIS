@@ -88,6 +88,8 @@ h1, h2, h3, h4 {
   font-size: var(--text-4xl);
   font-weight: 700;
   letter-spacing: -0.03em;
+  line-height: 1.15;
+  text-wrap: balance;
 }
 
 .intro-text {
@@ -413,6 +415,8 @@ button.calculate-button:active {
 /* ---------- Live data ---------- */
 .live-data {
   margin-top: var(--space-10);
+  /* keeps the "Live Data" heading clear of the sticky header when scrolled to */
+  scroll-margin-top: 5.5rem;
 }
 
 .section-title {
@@ -731,6 +735,19 @@ button.calculate-button:active {
 @media (max-width: 520px) {
   .brand-sub {
     display: none;
+  }
+
+  .intro {
+    margin-bottom: var(--space-5);
+  }
+
+  .intro-title {
+    font-size: 1.5rem;
+    line-height: 1.2;
+  }
+
+  .intro-text {
+    font-size: var(--text-sm);
   }
 
   .container {

@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import { SearchBox, MapPanel } from './components/LocationPicker';
 import SolarSystemForm from './components/SolarSystemForm';
 import ResultsDashboard from './components/ResultsDashboard';
@@ -17,6 +17,23 @@ function App() {
   // Snapshot of the location + inputs taken when "Calculate Analysis" is clicked.
   // Results only change when this changes, never on map clicks or typing.
   const [request, setRequest] = useState(null);
+
+  const workspaceRef = useRef(null);
+
+  // On phones the form sits below the map. After a valid pick (map tap or search
+  // result), scroll down to it.
+  const handlePick = (location) => {
+    setSelectedLocation(location);
+    if (!window.matchMedia('(max-width: 900px)').matches) return;
+    // short pause so the pin is seen dropping before the page moves
+    setTimeout(() => {
+      const form = workspaceRef.current?.querySelector('.card');
+      if (!form) return;
+      const headerHeight = document.querySelector('.header')?.offsetHeight ?? 0;
+      const top = form.getBoundingClientRect().top + window.scrollY - headerHeight - 12;
+      window.scrollTo({ top, behavior: 'smooth' });
+    }, 400);
+  };
 
   const handleCalculate = (values) => {
     setFormData(values);
@@ -44,10 +61,10 @@ function App() {
           </p>
         </section>
 
-        <SearchBox onPick={setSelectedLocation} />
+        <SearchBox onPick={handlePick} />
 
-        <section className="workspace">
-          <MapPanel location={selectedLocation} onLocationChange={setSelectedLocation} />
+        <section className="workspace" ref={workspaceRef}>
+          <MapPanel location={selectedLocation} onLocationChange={handlePick} />
           <SolarSystemForm
             data={formData}
             onChange={handleCalculate}

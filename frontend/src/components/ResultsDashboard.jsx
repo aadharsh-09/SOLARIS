@@ -33,7 +33,9 @@ const ResultsDashboard = ({ location, formData }) => {
   // Once the results have loaded, scroll them into view (handy on phones).
   useEffect(() => {
     if (data && !loading && resultsRef.current) {
-      resultsRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      // Scroll to the whole "Live Data" section (heading included), not just the cards.
+      const target = resultsRef.current.closest('.live-data') || resultsRef.current;
+      target.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }
   }, [data, loading]);
 
@@ -42,7 +44,7 @@ const ResultsDashboard = ({ location, formData }) => {
   if (!data) return null;
 
   return (
-    <div className="results-dashboard" ref={resultsRef} style={{ scrollMarginTop: '7rem' }}>
+    <div className="results-dashboard" ref={resultsRef}>
       <div className="dashboard-grid">
         <MetricCard title="Daily Generation" value={data.generation?.daily_kwh} unit="kWh/day" icon={<BoltIcon />} accent="solar" />
         <MetricCard title="Daily Consumption" value={data.household?.daily_consumption_kwh} unit="kWh/day" icon={<HomeIcon />} accent="teal" />
