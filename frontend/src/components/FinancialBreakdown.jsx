@@ -52,7 +52,7 @@ const FinancialBreakdown = ({ data }) => {
           tone={diff > 0 ? 'success' : diff < 0 ? 'warn' : undefined}
           label="Difference"
           formula={`${kwh(monthlyGen)} − ${kwh(monthlyUsed)}`}
-          result={`${diff > 0 ? '+' : ''}${diff.toFixed(2)} kWh ${diff > 0 ? '(surplus)' : diff < 0 ? '(deficit)' : ''}`}
+          result={`${diff > 0 ? '+' : ''}${diff.toFixed(2)} kWh`}
         />
       </div>
 
